@@ -7,3 +7,4 @@ out/
 libs/
 .superpowers/
 .DS_Store
+logs/

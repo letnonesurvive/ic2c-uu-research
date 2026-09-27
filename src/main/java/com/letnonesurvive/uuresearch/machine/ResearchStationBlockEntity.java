@@ -4,6 +4,7 @@ import com.letnonesurvive.uuresearch.UUResearchConfig;
 import com.letnonesurvive.uuresearch.client.ClientKnowledge;
 import com.letnonesurvive.uuresearch.research.ResearchCost;
 import com.letnonesurvive.uuresearch.research.ResearchKnowledge;
+import com.letnonesurvive.uuresearch.research.ResearchTarget;
 import com.letnonesurvive.uuresearch.research.UURecipeIndex;
 import ic2.api.items.IUpgradeItem.UpgradeType;
 import ic2.api.network.buffer.NetworkInfo;
@@ -41,6 +42,7 @@ import java.util.EnumSet;
 
 /**
  * MV machine that researches the UU-Matter recipes of the sample item. The sample is returned.
+ * A fluid bucket researches its fluid block, see {@link ResearchTarget}.
  */
 public class ResearchStationBlockEntity extends BaseMachineTileEntity implements ITickListener, ITileGui {
 
@@ -122,7 +124,7 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
 
     @Override
     public int getValidRoom(ItemStack stack) {
-        return this.inventory.get(SLOT_INPUT).isEmpty() && isResearchable(stack.getItem()) ? stack.getMaxStackSize() : 0;
+        return this.inventory.get(SLOT_INPUT).isEmpty() && isResearchable(ResearchTarget.of(stack.getItem())) ? stack.getMaxStackSize() : 0;
     }
 
     @Override
@@ -146,7 +148,7 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
             return;
         }
 
-        Item item = sample.getItem();
+        Item item = ResearchTarget.of(sample.getItem());
         ResearchKnowledge knowledge = ResearchKnowledge.get(server);
         // Also covers a recipe learned by command while the sample was waiting
         if (knowledge.isLearned(ForgeRegistries.ITEMS.getKey(item))
