@@ -15,7 +15,9 @@ public final class ResearchTarget {
     }
 
     public static Item of(Item sample) {
-        if (sample instanceof BucketItem bucket && bucket.getFluid() != Fluids.EMPTY) {
+        // Only the fluid's own bucket counts: fish/axolotl buckets also hold water but are a different sample
+        if (sample instanceof BucketItem bucket && bucket.getFluid() != Fluids.EMPTY
+                && bucket.getFluid().getBucket() == sample) {
             Item fluidBlockItem = bucket.getFluid().defaultFluidState().createLegacyBlock().getBlock().asItem();
             if (fluidBlockItem != Items.AIR) {
                 return fluidBlockItem;
