@@ -11,6 +11,20 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: 'parchment', version: "${parchment_version}-${minecraft_version}"
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            // IC2 ships mixins; its refmap must be remapped to the dev (parchment) names
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                uuresearch {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
 }
 
 repositories {
@@ -33,6 +47,11 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+
+    // Dev client only (runClient): the same jars as the Prism test instance, copied into libs/
+    runtimeOnly fg.deobf("local:CarbonConfig-1.19.2:2.0.2")
+    runtimeOnly fg.deobf("local:jei-1.19.2-forge:11.68.0.1084")
+    runtimeOnly fg.deobf("local:mezz_config-1.19.2-forge:0.6.3")
 }
 
 jar {

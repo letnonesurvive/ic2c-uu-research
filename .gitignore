@@ -8,3 +8,4 @@ libs/
 .superpowers/
 .DS_Store
 logs/
+.vscode/
