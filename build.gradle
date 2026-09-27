@@ -1,0 +1,59 @@
+plugins {
+    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+}
+
+version = "${minecraft_version}-${mod_version}"
+group = 'com.letnonesurvive.uuresearch'
+archivesBaseName = 'uuresearch'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'parchment', version: "${parchment_version}-${minecraft_version}"
+}
+
+repositories {
+    flatDir { dirs 'libs' }
+    maven {
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+        content { includeGroup "mezz.jei" }
+    }
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev/"
+        content { includeGroup "mezz.jei" }
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    implementation fg.deobf("local:IC2Classic-1.19.2:${ic2_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"   : "uuresearch",
+                "Specification-Vendor"  : "letnonesurvive",
+                "Specification-Version" : "1",
+                "Implementation-Title"  : project.name,
+                "Implementation-Version": project.jar.archiveVersion,
+                "Implementation-Vendor" : "letnonesurvive"
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+}

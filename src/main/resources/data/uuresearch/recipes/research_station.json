@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["AUA", "CMC", "ACA"],
+  "key": {
+    "A": { "item": "ic2:advanced_circuit" },
+    "U": { "item": "ic2:uumatter" },
+    "C": { "item": "ic2:circuit" },
+    "M": { "item": "ic2:advanced_machine_block" }
+  },
+  "result": { "item": "uuresearch:research_station" }
+}

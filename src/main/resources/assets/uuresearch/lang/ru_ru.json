@@ -1,0 +1,12 @@
+{
+  "commands.uuresearch.no_recipe": "У предмета %s нет скрытого UU-рецепта",
+  "commands.uuresearch.learn.success": "Изучено: %s",
+  "commands.uuresearch.learn.already": "Уже изучено: %s",
+  "commands.uuresearch.forget.success": "Забыто: %s",
+  "commands.uuresearch.forget.not_learned": "Не изучено: %s",
+  "commands.uuresearch.learnall.success": "Изучены все UU-предметы: %s",
+  "commands.uuresearch.reset.success": "Знания сброшены",
+  "commands.uuresearch.list": "Изучено %s из %s: %s",
+  "block.uuresearch.research_station": "UU-исследователь",
+  "message.uuresearch.learned": "Изучен рецепт репликации: %s"
+}

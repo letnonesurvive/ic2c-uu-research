@@ -1,0 +1,35 @@
+modLoader="javafml"
+loaderVersion="[43,)"
+license="MIT"
+[[mods]]
+modId="uuresearch"
+version="${file.jarVersion}"
+displayName="UU Research"
+authors="letnonesurvive"
+description='''
+Research UU-Matter replication recipes of IC2 Classic in a machine to reveal them in JEI.
+'''
+[[dependencies.uuresearch]]
+    modId="forge"
+    mandatory=true
+    versionRange="[43,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.uuresearch]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.19.2,1.19.3)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.uuresearch]]
+    modId="ic2"
+    mandatory=true
+    versionRange="[1.19.2-2.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.uuresearch]]
+    modId="jei"
+    mandatory=false
+    versionRange="[11,)"
+    ordering="AFTER"
+    side="BOTH"

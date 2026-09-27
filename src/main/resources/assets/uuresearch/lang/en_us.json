@@ -1,0 +1,12 @@
+{
+  "commands.uuresearch.no_recipe": "%s has no hidden UU-Matter recipe",
+  "commands.uuresearch.learn.success": "Researched: %s",
+  "commands.uuresearch.learn.already": "Already researched: %s",
+  "commands.uuresearch.forget.success": "Forgot: %s",
+  "commands.uuresearch.forget.not_learned": "Not researched: %s",
+  "commands.uuresearch.learnall.success": "Researched all %s UU-Matter items",
+  "commands.uuresearch.reset.success": "Research knowledge reset",
+  "commands.uuresearch.list": "Researched %s of %s: %s",
+  "block.uuresearch.research_station": "UU Research Station",
+  "message.uuresearch.learned": "Replication recipe researched: %s"
+}
