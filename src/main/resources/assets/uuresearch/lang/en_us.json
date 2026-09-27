@@ -12,5 +12,8 @@
   "tooltip.uuresearch.learned": "UU: researched ✓",
   "tooltip.uuresearch.researchable": "UU: can be researched — %s UU, ~%s",
   "tooltip.uuresearch.time.seconds": "%s s",
-  "tooltip.uuresearch.time.minutes": "%s min %s s"
+  "tooltip.uuresearch.time.minutes": "%s min %s s",
+  "gui.uuresearch.knowledge.button": "Researched recipes",
+  "gui.uuresearch.knowledge.title": "Researched",
+  "gui.uuresearch.knowledge.count": "%s / %s"
 }

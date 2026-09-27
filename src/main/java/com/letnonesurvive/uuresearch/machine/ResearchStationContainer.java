@@ -34,6 +34,7 @@ public class ResearchStationContainer extends ContainerComponent<ResearchStation
         this.addPlayerInventory(player.getInventory());
         this.addComponent(new ChargeBarComponent(CHARGE_BOX, tile, CHARGE_POS, true));
         this.addComponent(new ProgressComponent(PROGRESS_BOX, tile, PROGRESS_POS, false));
+        this.addComponent(new KnowledgePanelComponent());
     }
 
     @Override

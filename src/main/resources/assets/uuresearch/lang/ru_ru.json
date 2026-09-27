@@ -12,5 +12,8 @@
   "tooltip.uuresearch.learned": "UU: изучено ✓",
   "tooltip.uuresearch.researchable": "UU: можно изучить — %s UU, ~%s",
   "tooltip.uuresearch.time.seconds": "%s с",
-  "tooltip.uuresearch.time.minutes": "%s мин %s с"
+  "tooltip.uuresearch.time.minutes": "%s мин %s с",
+  "gui.uuresearch.knowledge.button": "Изученные рецепты",
+  "gui.uuresearch.knowledge.title": "Изучено",
+  "gui.uuresearch.knowledge.count": "%s / %s"
 }

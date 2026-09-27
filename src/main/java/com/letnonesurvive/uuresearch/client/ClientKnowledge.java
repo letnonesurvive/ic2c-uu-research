@@ -14,12 +14,14 @@ public final class ClientKnowledge {
 
     private static final KnowledgeSet SET = new KnowledgeSet();
     private static final List<Runnable> LISTENERS = new CopyOnWriteArrayList<>();
+    private static volatile int version;
 
     private ClientKnowledge() {
     }
 
     public static void set(Collection<ResourceLocation> learned) {
         SET.replaceAll(learned);
+        version++;
         LISTENERS.forEach(Runnable::run);
     }
 
@@ -29,6 +31,11 @@ public final class ClientKnowledge {
 
     public static boolean isLearned(ResourceLocation id) {
         return SET.isLearned(id);
+    }
+
+    /** Increases on every update, so views can cheaply detect that they are stale. */
+    public static int version() {
+        return version;
     }
 
     public static void addListener(Runnable listener) {
