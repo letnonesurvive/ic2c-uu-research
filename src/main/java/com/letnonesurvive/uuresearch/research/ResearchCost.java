@@ -1,5 +1,7 @@
 package com.letnonesurvive.uuresearch.research;
 
+import java.math.BigDecimal;
+
 /**
  * Energy cost math for researching an item. IC2 expresses UU cost in milli-UU (1000 = one UU-Matter).
  */
@@ -22,5 +24,21 @@ public final class ResearchCost {
     public static int totalEu(int milliUU, int euPerUU) {
         long eu = (long) milliUU * euPerUU / MILLI_UU_PER_UU;
         return (int) Math.max(1L, Math.min(Integer.MAX_VALUE, eu));
+    }
+
+    /** Ticks to spend {@code totalEu} at {@code euPerTick}, rounded up. */
+    public static int ticks(int totalEu, int euPerTick) {
+        return (totalEu + euPerTick - 1) / euPerTick;
+    }
+
+    /** Milli-UU as a UU amount without trailing zeros, e.g. 1250 -> "1.25". */
+    public static String formatUU(int milliUU) {
+        return BigDecimal.valueOf(milliUU, 3).stripTrailingZeros().toPlainString();
+    }
+
+    /** Whole minutes and seconds (rounded up) of a tick count. */
+    public static int[] minutesSeconds(int ticks) {
+        int seconds = (ticks + 19) / 20;
+        return new int[]{seconds / 60, seconds % 60};
     }
 }

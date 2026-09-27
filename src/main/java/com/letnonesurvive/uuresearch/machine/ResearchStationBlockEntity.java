@@ -49,6 +49,8 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
     public static final EnumSet<UpgradeType> UPGRADES = EnumSet.of(
             UpgradeType.TRANSPORT_MOD, UpgradeType.CUSTOM_MOD, UpgradeType.MACHINE_MOD, UpgradeType.PROCESSING_MOD);
 
+    public static final int ENERGY_PER_TICK = 32;
+
     static final int SLOT_BATTERY = 0;
     static final int SLOT_INPUT = 1;
     static final int SLOT_OUTPUT = 2;
@@ -59,8 +61,8 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
     public int maxProgress = 0;
 
     public ResearchStationBlockEntity(BlockPos pos, BlockState state) {
-        // 3 slots, 4 upgrade slots, 32 EU/t, unused operation length, 10k EU buffer, MV input (128)
-        super(pos, state, 3, 4, 32, 1000, 10_000, 128);
+        // 3 slots, 4 upgrade slots, base EU/t, unused operation length, 10k EU buffer, MV input (128)
+        super(pos, state, 3, 4, ENERGY_PER_TICK, 1000, 10_000, 128);
         this.setFuelSlot(SLOT_BATTERY);
         this.addGuiFields("progress", "maxProgress");
     }

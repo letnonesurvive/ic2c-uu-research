@@ -2,6 +2,7 @@ package com.letnonesurvive.uuresearch.research;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ResearchCostTest {
@@ -32,5 +33,25 @@ class ResearchCostTest {
     @Test
     void totalEuSaturatesInsteadOfOverflowing() {
         assertEquals(Integer.MAX_VALUE, ResearchCost.totalEu(Integer.MAX_VALUE, 1_000_000));
+    }
+
+    @Test
+    void ticksRoundUpToWholeTicks() {
+        assertEquals(313, ResearchCost.ticks(10_000, 32));
+        assertEquals(1, ResearchCost.ticks(1, 32));
+    }
+
+    @Test
+    void formatsUUWithoutTrailingZeros() {
+        assertEquals("9", ResearchCost.formatUU(9000));
+        assertEquals("1.25", ResearchCost.formatUU(1250));
+        assertEquals("0.062", ResearchCost.formatUU(62));
+    }
+
+    @Test
+    void splitsTicksIntoMinutesAndSeconds() {
+        assertArrayEquals(new int[]{2, 21}, ResearchCost.minutesSeconds(2813));
+        assertArrayEquals(new int[]{0, 16}, ResearchCost.minutesSeconds(313));
+        assertArrayEquals(new int[]{0, 1}, ResearchCost.minutesSeconds(1));
     }
 }

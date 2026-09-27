@@ -8,5 +8,9 @@
   "commands.uuresearch.reset.success": "Research knowledge reset",
   "commands.uuresearch.list": "Researched %s of %s: %s",
   "block.uuresearch.research_station": "UU Research Station",
-  "message.uuresearch.learned": "Replication recipe researched: %s"
+  "message.uuresearch.learned": "Replication recipe researched: %s",
+  "tooltip.uuresearch.learned": "UU: researched ✓",
+  "tooltip.uuresearch.researchable": "UU: can be researched — %s UU, ~%s",
+  "tooltip.uuresearch.time.seconds": "%s s",
+  "tooltip.uuresearch.time.minutes": "%s min %s s"
 }

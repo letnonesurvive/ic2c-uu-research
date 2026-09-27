@@ -8,5 +8,9 @@
   "commands.uuresearch.reset.success": "Знания сброшены",
   "commands.uuresearch.list": "Изучено %s из %s: %s",
   "block.uuresearch.research_station": "UU-исследователь",
-  "message.uuresearch.learned": "Изучен рецепт репликации: %s"
+  "message.uuresearch.learned": "Изучен рецепт репликации: %s",
+  "tooltip.uuresearch.learned": "UU: изучено ✓",
+  "tooltip.uuresearch.researchable": "UU: можно изучить — %s UU, ~%s",
+  "tooltip.uuresearch.time.seconds": "%s с",
+  "tooltip.uuresearch.time.minutes": "%s мин %s с"
 }

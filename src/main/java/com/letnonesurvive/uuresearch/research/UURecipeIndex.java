@@ -76,10 +76,10 @@ public final class UURecipeIndex {
         return items;
     }
 
-    /** Cheapest registered UU cost of the item in milli-UU. Server side only. */
+    /** Cheapest registered UU cost of the item in milli-UU, from IC2's registry of the calling thread's side. */
     public static int milliUUCost(Item item, int defaultCostUU) {
         Integer cheapest = null;
-        for (IUUMatterRegistry.UUMatterEntry entry : IC2.RECIPES.get(true).UU.getEntries()) {
+        for (IUUMatterRegistry.UUMatterEntry entry : IC2.RECIPES.get().UU.getEntries()) {
             if (entry.getStack().getItem() == item) {
                 cheapest = cheapest == null ? entry.getUUNeeded() : Math.min(cheapest, entry.getUUNeeded());
             }
