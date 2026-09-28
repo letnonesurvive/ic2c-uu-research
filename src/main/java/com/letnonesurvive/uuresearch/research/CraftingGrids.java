@@ -16,6 +16,8 @@ public final class CraftingGrids {
 
     // Vanilla crafting menus ignore the container argument of slotsChanged and recompute their own grid
     public static void refresh(MinecraftServer server) {
+        // Waiting "not researched" messages may be stale now; grids still blocked re-register below
+        CraftLockNotifier.clear();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.inventoryMenu.slotsChanged(player.getInventory());
             if (player.containerMenu instanceof CraftingMenu menu) {

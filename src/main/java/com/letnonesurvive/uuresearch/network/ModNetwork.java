@@ -27,6 +27,11 @@ public final class ModNetwork {
                 .decoder(KnowledgeSyncPacket::decode)
                 .consumerMainThread(KnowledgeSyncPacket::handle)
                 .add();
+        CHANNEL.messageBuilder(RecipeLockedPacket.class, 1, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(RecipeLockedPacket::encode)
+                .decoder(RecipeLockedPacket::decode)
+                .consumerMainThread(RecipeLockedPacket::handle)
+                .add();
     }
 
     public static void sendTo(ServerPlayer player, Set<ResourceLocation> learned) {
@@ -35,5 +40,9 @@ public final class ModNetwork {
 
     public static void sendToAll(Set<ResourceLocation> learned) {
         CHANNEL.send(PacketDistributor.ALL.noArg(), new KnowledgeSyncPacket(new HashSet<>(learned)));
+    }
+
+    public static void sendRecipeLocked(ServerPlayer player) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new RecipeLockedPacket());
     }
 }

@@ -15,5 +15,6 @@
   "tooltip.uuresearch.time.minutes": "%s мин %s с",
   "gui.uuresearch.knowledge.button": "Изученные рецепты",
   "gui.uuresearch.knowledge.title": "Изучено",
-  "gui.uuresearch.knowledge.count": "%s / %s"
+  "gui.uuresearch.knowledge.count": "%s / %s",
+  "message.uuresearch.recipe_locked": "Этот UU-рецепт ещё не изучен — изучите его в UU-исследователе"
 }

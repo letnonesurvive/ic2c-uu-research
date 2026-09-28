@@ -1,6 +1,7 @@
 package com.letnonesurvive.uuresearch.mixin;
 
 import com.letnonesurvive.uuresearch.research.CraftLock;
+import com.letnonesurvive.uuresearch.research.CraftLockNotifier;
 import ic2.core.platform.recipes.crafting.ShapedIC2Recipe;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -23,6 +24,7 @@ public abstract class ShapedIC2RecipeMixin {
         // Only a recipe whose pattern actually matched is checked, keeping the knowledge lookup off the hot path
         if (cir.getReturnValueZ() && CraftLock.shouldBlock((CraftingRecipe) (Object) this, level)) {
             cir.setReturnValue(false);
+            CraftLockNotifier.onBlocked(container, level);
         }
     }
 }
