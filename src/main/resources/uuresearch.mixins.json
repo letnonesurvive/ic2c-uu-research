@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.letnonesurvive.uuresearch.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": ["ShapedIC2RecipeMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

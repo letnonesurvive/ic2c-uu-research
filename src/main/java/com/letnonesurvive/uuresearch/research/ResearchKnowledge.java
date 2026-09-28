@@ -7,6 +7,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Collection;
 import java.util.Set;
@@ -66,6 +67,10 @@ public final class ResearchKnowledge extends SavedData {
         if (changed) {
             setDirty();
             ModNetwork.sendToAll(set.view());
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            if (server != null) {
+                CraftingGrids.refresh(server);
+            }
         }
         return changed;
     }

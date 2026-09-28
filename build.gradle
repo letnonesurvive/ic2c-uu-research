@@ -18,6 +18,7 @@ minecraft {
             // IC2 ships mixins; its refmap must be remapped to the dev (parchment) names
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            arg '-mixin.config=uuresearch.mixins.json'
             mods {
                 uuresearch {
                     source sourceSets.main
@@ -62,7 +63,8 @@ jar {
                 "Specification-Version" : "1",
                 "Implementation-Title"  : project.name,
                 "Implementation-Version": project.jar.archiveVersion,
-                "Implementation-Vendor" : "letnonesurvive"
+                "Implementation-Vendor" : "letnonesurvive",
+                "MixinConfigs"          : "uuresearch.mixins.json"
         ])
     }
 }
