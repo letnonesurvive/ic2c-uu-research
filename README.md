@@ -41,6 +41,8 @@ the machine is broken, just like in the Rare Earth Extractor.
 
 ## Recipe
 
+<img src="docs/images/recipe.png" width="380" alt="UU Research Station crafting recipe">
+
 | | | |
 |---|---|---|
 | Book | OD Scanner | Book |
