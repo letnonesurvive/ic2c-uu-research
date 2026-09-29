@@ -1,5 +1,5 @@
 {
-  "commands.uuresearch.no_recipe": "У предмета %s нет скрытого UU-рецепта",
+  "commands.uuresearch.no_recipe": "У предмета %s нет UU-рецепта",
   "commands.uuresearch.learn.success": "Изучено: %s",
   "commands.uuresearch.learn.already": "Уже изучено: %s",
   "commands.uuresearch.forget.success": "Забыто: %s",

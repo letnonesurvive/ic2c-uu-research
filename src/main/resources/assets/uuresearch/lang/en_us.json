@@ -1,5 +1,5 @@
 {
-  "commands.uuresearch.no_recipe": "%s has no hidden UU-Matter recipe",
+  "commands.uuresearch.no_recipe": "%s has no UU-Matter recipe",
   "commands.uuresearch.learn.success": "Researched: %s",
   "commands.uuresearch.learn.already": "Already researched: %s",
   "commands.uuresearch.forget.success": "Forgot: %s",
