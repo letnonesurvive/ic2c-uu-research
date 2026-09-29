@@ -16,5 +16,8 @@
   "gui.uuresearch.knowledge.button": "Researched recipes",
   "gui.uuresearch.knowledge.title": "Researched",
   "gui.uuresearch.knowledge.count": "%s / %s",
-  "message.uuresearch.recipe_locked": "This UU recipe is not researched yet — research it in a UU Research Station"
+  "message.uuresearch.recipe_locked": "This UU recipe is not researched yet — research it in a UU Research Station",
+  "gui.uuresearch.status.no_target": "No target",
+  "gui.uuresearch.status.learned": "Researched",
+  "gui.uuresearch.status.uu": "UU: %s / %s"
 }

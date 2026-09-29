@@ -16,5 +16,8 @@
   "gui.uuresearch.knowledge.button": "Изученные рецепты",
   "gui.uuresearch.knowledge.title": "Изучено",
   "gui.uuresearch.knowledge.count": "%s / %s",
-  "message.uuresearch.recipe_locked": "Этот UU-рецепт ещё не изучен — изучите его в UU-исследователе"
+  "message.uuresearch.recipe_locked": "Этот UU-рецепт ещё не изучен — изучите его в UU-исследователе",
+  "gui.uuresearch.status.no_target": "Нет цели",
+  "gui.uuresearch.status.learned": "Уже изучено",
+  "gui.uuresearch.status.uu": "UU: %s / %s"
 }

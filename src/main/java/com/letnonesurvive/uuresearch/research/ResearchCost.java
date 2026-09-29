@@ -26,6 +26,16 @@ public final class ResearchCost {
         return (int) Math.max(1L, Math.min(Integer.MAX_VALUE, eu));
     }
 
+    /** UU-Matter one craft of the recipe consumes; IC2 stores the per-item cost rounded down. */
+    public static int uuPerCraft(int milliUU, int resultCount) {
+        return Math.max(1, (int) Math.round((double) milliUU * resultCount / MILLI_UU_PER_UU));
+    }
+
+    /** EU to process one UU-Matter unit: an equal share of {@code totalEu}, rounded up, at least 1. */
+    public static int euPerUnit(int totalEu, int units) {
+        return Math.max(1, (int) (((long) totalEu + units - 1) / Math.max(1, units)));
+    }
+
     /** Ticks to spend {@code totalEu} at {@code euPerTick}, rounded up. */
     public static int ticks(int totalEu, int euPerTick) {
         return (totalEu + euPerTick - 1) / euPerTick;

@@ -12,16 +12,17 @@ import javax.annotation.Nullable;
 import java.util.function.BooleanSupplier;
 
 /**
- * Decides whether an IC2 UU-Matter recipe may be crafted. Called from recipe matching, which runs for every
- * recipe on every crafting grid change, so checks go from cheapest to most expensive and stop early.
+ * Decides whether an IC2 UU-Matter recipe (an IC2 recipe made only of UU-Matter) may be crafted. Called from recipe
+ * matching, which runs for every recipe on every crafting grid change, so checks go from cheapest to most expensive
+ * and stop early.
  */
 public final class CraftLock {
 
     private CraftLock() {
     }
 
-    public static boolean blocks(boolean enabled, boolean hidden, BooleanSupplier learned, BooleanSupplier usesUUMatter) {
-        return enabled && hidden && !learned.getAsBoolean() && usesUUMatter.getAsBoolean();
+    public static boolean blocks(boolean enabled, boolean ic2Recipe, BooleanSupplier learned, BooleanSupplier usesUUMatter) {
+        return enabled && ic2Recipe && !learned.getAsBoolean() && usesUUMatter.getAsBoolean();
     }
 
     /** True if the recipe must not match in this level because its UU-Matter recipe is not researched yet. */
@@ -30,7 +31,7 @@ public final class CraftLock {
             return false;
         }
         return blocks(UUResearchConfig.REQUIRE_RESEARCH_TO_CRAFT.get(),
-                recipe instanceof RecipeIC2Base base && base.isHidden(),
+                recipe instanceof RecipeIC2Base,
                 () -> isLearned(UURecipeIndex.outputId(recipe), level),
                 () -> UURecipeIndex.isUURecipe(recipe));
     }

@@ -20,7 +20,7 @@ class CraftLockTest {
     }
 
     @Test
-    void allowsVisibleRecipes() {
+    void allowsNonIC2Recipes() {
         assertFalse(CraftLock.blocks(true, false, () -> false, () -> true));
     }
 

@@ -13,33 +13,41 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.HashSet;
+import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
- * Locates IC2 Classic UU-Matter replication recipes: hidden IC2 crafting recipes that use UU-Matter.
- * Output lookups are cached per {@link RecipeManager}; {@link #invalidate()} must be called when recipes reload.
+ * Locates IC2 Classic UU-Matter replication recipes: IC2 crafting recipes made only of UU-Matter, including the
+ * ones IC2 shows (iridium ore). Lookups by output are cached per {@link RecipeManager}; {@link #invalidate()} must
+ * be called when recipes reload.
  */
 public final class UURecipeIndex {
 
-    private static final IdentityCache<RecipeManager, Set<Item>> OUTPUTS = new IdentityCache<>();
+    private static final IdentityCache<RecipeManager, Map<Item, CraftingRecipe>> BY_OUTPUT = new IdentityCache<>();
 
     private UURecipeIndex() {
     }
 
     public static boolean isUURecipe(CraftingRecipe recipe) {
-        if (!(recipe instanceof RecipeIC2Base base) || !base.isHidden()) {
+        if (!(recipe instanceof RecipeIC2Base)) {
             return false;
         }
         ItemStack uuMatter = new ItemStack(IC2Items.UUMATTER);
+        boolean any = false;
         for (Ingredient ingredient : recipe.getIngredients()) {
-            if (!ingredient.isEmpty() && ingredient.test(uuMatter)) {
-                return true;
+            if (ingredient.isEmpty()) {
+                continue;
             }
+            if (!ingredient.test(uuMatter)) {
+                return false;
+            }
+            any = true;
         }
-        return false;
+        return any;
     }
 
     public static List<CraftingRecipe> all(RecipeManager manager) {
@@ -60,20 +68,25 @@ public final class UURecipeIndex {
         return ids;
     }
 
+    @Nullable
+    public static CraftingRecipe recipeFor(RecipeManager manager, Item item) {
+        return BY_OUTPUT.get(manager, UURecipeIndex::collectRecipes).get(item);
+    }
+
     public static boolean hasUURecipe(RecipeManager manager, Item item) {
-        return OUTPUTS.get(manager, UURecipeIndex::collectOutputs).contains(item);
+        return recipeFor(manager, item) != null;
     }
 
     public static void invalidate() {
-        OUTPUTS.invalidate();
+        BY_OUTPUT.invalidate();
     }
 
-    private static Set<Item> collectOutputs(RecipeManager manager) {
-        Set<Item> items = new HashSet<>();
+    private static Map<Item, CraftingRecipe> collectRecipes(RecipeManager manager) {
+        Map<Item, CraftingRecipe> recipes = new HashMap<>();
         for (CraftingRecipe recipe : all(manager)) {
-            items.add(recipe.getResultItem().getItem());
+            recipes.putIfAbsent(recipe.getResultItem().getItem(), recipe);
         }
-        return items;
+        return recipes;
     }
 
     /** Cheapest registered UU cost of the item in milli-UU, from IC2's registry of the calling thread's side. */

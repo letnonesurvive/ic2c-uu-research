@@ -54,4 +54,26 @@ class ResearchCostTest {
         assertArrayEquals(new int[]{0, 16}, ResearchCost.minutesSeconds(313));
         assertArrayEquals(new int[]{0, 1}, ResearchCost.minutesSeconds(1));
     }
+
+    @Test
+    void uuPerCraftRestoresWholeRecipeCost() {
+        assertEquals(1, ResearchCost.uuPerCraft(62, 16));      // cobblestone: 1 UU -> 16
+        assertEquals(9, ResearchCost.uuPerCraft(9000, 1));     // diamond
+        assertEquals(112, ResearchCost.uuPerCraft(112000, 1)); // elytra
+        assertEquals(5, ResearchCost.uuPerCraft(104, 48));     // clay: 5 UU -> 48
+        assertEquals(4, ResearchCost.uuPerCraft(190, 21));     // sticky resin: 4 UU -> 21
+    }
+
+    @Test
+    void uuPerCraftIsAtLeastOne() {
+        assertEquals(1, ResearchCost.uuPerCraft(1, 1));
+    }
+
+    @Test
+    void euPerUnitSplitsTotalEvenlyRoundingUp() {
+        assertEquals(1000, ResearchCost.euPerUnit(9000, 9));
+        assertEquals(334, ResearchCost.euPerUnit(1000, 3));
+        assertEquals(1, ResearchCost.euPerUnit(1, 5));
+        assertEquals(1, ResearchCost.euPerUnit(0, 0));
+    }
 }

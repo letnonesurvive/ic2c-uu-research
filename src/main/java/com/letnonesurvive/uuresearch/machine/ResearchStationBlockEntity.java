@@ -4,7 +4,6 @@ import com.letnonesurvive.uuresearch.UUResearchConfig;
 import com.letnonesurvive.uuresearch.client.ClientKnowledge;
 import com.letnonesurvive.uuresearch.research.ResearchCost;
 import com.letnonesurvive.uuresearch.research.ResearchKnowledge;
-import com.letnonesurvive.uuresearch.research.ResearchTarget;
 import com.letnonesurvive.uuresearch.research.UURecipeIndex;
 import ic2.api.items.IUpgradeItem.UpgradeType;
 import ic2.api.network.buffer.NetworkInfo;
@@ -21,6 +20,8 @@ import ic2.core.inventory.handler.AccessRule;
 import ic2.core.inventory.handler.InventoryHandler;
 import ic2.core.inventory.handler.SlotType;
 import ic2.core.inventory.inv.RangedInventory;
+import ic2.core.inventory.inv.SimpleInventory;
+import ic2.core.platform.registries.IC2Items;
 import ic2.core.utils.helpers.NBTUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,6 +35,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -41,13 +43,17 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.EnumSet;
 
 /**
- * MV machine that researches the UU-Matter recipes of the sample item. The sample is returned.
- * A fluid bucket researches its fluid block, see {@link ResearchTarget}.
+ * MV machine that researches the UU-Matter recipe of a ghost target. Like IC2's Rare Earth Extractor it processes
+ * the input one UU-Matter at a time, each taking an equal share of the research energy, and counts the processed
+ * units; once the recipe's amount is reached it outputs one craft and marks the recipe researched. Processed units
+ * are lost when the target changes or is researched elsewhere, and when the machine is broken. A researched target
+ * is idle.
  */
 public class ResearchStationBlockEntity extends BaseMachineTileEntity implements ITickListener, ITileGui {
 
     public static final EnumSet<UpgradeType> UPGRADES = EnumSet.of(
-            UpgradeType.TRANSPORT_MOD, UpgradeType.CUSTOM_MOD, UpgradeType.MACHINE_MOD, UpgradeType.PROCESSING_MOD);
+            UpgradeType.RECIPE_MOD, UpgradeType.TRANSPORT_MOD, UpgradeType.CUSTOM_MOD, UpgradeType.MACHINE_MOD,
+            UpgradeType.PROCESSING_MOD);
 
     public static final int ENERGY_PER_TICK = 32;
 
@@ -55,16 +61,47 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
     static final int SLOT_INPUT = 1;
     static final int SLOT_OUTPUT = 2;
 
+    // In EU at the base rate: overclockers speed it up while the machine pays their extra energy demand
     @NetworkInfo
-    public int progress = 0;
+    public float progress = 0;
     @NetworkInfo
     public int maxProgress = 0;
+    @NetworkInfo
+    public int neededUU = 0;
+    @NetworkInfo
+    public int processedUU = 0;
+
+    // Kept apart from the main inventory, like IC2's filter tubes: never dropped and invisible to automation,
+    // otherwise the ghost would turn into a real item
+    private final SimpleInventory target = new SimpleInventory(1) {
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack) {
+            ResearchStationBlockEntity machine = ResearchStationBlockEntity.this;
+            boolean server = machine.level != null && !machine.level.isClientSide;
+            // Only the bare item is kept; the server also rejects targets a client should not have been able to pick
+            ItemStack ghost = stack.isEmpty() || server && !machine.isTargetValid(stack)
+                    ? ItemStack.EMPTY
+                    : new ItemStack(stack.getItem());
+            boolean changed = !ItemStack.isSameItemSameTags(getStackInSlot(slot), ghost);
+            super.setStackInSlot(slot, ghost);
+            // A different target starts over and loses the processed UU; the client only mirrors the slot
+            if (server && changed) {
+                machine.setProgress(0);
+                machine.setProcessedUU(0);
+                machine.setChanged();
+            }
+        }
+    };
 
     public ResearchStationBlockEntity(BlockPos pos, BlockState state) {
         // 3 slots, 4 upgrade slots, base EU/t, unused operation length, 10k EU buffer, MV input (128)
         super(pos, state, 3, 4, ENERGY_PER_TICK, 1000, 10_000, 128);
         this.setFuelSlot(SLOT_BATTERY);
-        this.addGuiFields("progress", "maxProgress");
+        this.addGuiFields("progress", "maxProgress", "neededUU", "processedUU");
+    }
+
+    public SimpleInventory getTarget() {
+        return target;
     }
 
     @Override
@@ -88,13 +125,17 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
     @Override
     public void load(CompoundTag compound) {
         super.load(compound);
-        this.progress = NBTUtils.getInt(compound, "progress", 0);
+        this.target.load(compound.getCompound("target"));
+        this.progress = compound.getFloat("progress");
+        this.processedUU = NBTUtils.getInt(compound, "processedUU", 0);
     }
 
     @Override
     public void saveAdditional(CompoundTag compound) {
         super.saveAdditional(compound);
-        NBTUtils.putInt(compound, "progress", this.progress, 0);
+        compound.putFloat("progress", this.progress);
+        NBTUtils.putInt(compound, "processedUU", this.processedUU, 0);
+        compound.put("target", this.target.save(new CompoundTag()));
     }
 
     @Override
@@ -124,9 +165,14 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
         return this.maxProgress;
     }
 
+    // The input takes UU-Matter only
     @Override
     public int getValidRoom(ItemStack stack) {
-        return this.inventory.get(SLOT_INPUT).isEmpty() && isResearchable(ResearchTarget.of(stack.getItem())) ? stack.getMaxStackSize() : 0;
+        if (!stack.is(IC2Items.UUMATTER)) {
+            return 0;
+        }
+        ItemStack input = this.inventory.get(SLOT_INPUT);
+        return input.isEmpty() ? stack.getMaxStackSize() : Math.max(0, input.getMaxStackSize() - input.getCount());
     }
 
     @Override
@@ -141,77 +187,125 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
     @Override
     public void onTick() {
         this.handleChargeSlot(this.maxEnergy);
-        ItemStack sample = this.inventory.get(SLOT_INPUT);
         MinecraftServer server = this.level == null ? null : this.level.getServer();
-        if (server == null || sample.isEmpty() || !this.inventory.get(SLOT_OUTPUT).isEmpty()) {
-            this.setActive(false);
-            this.setProgress(0);
-            this.storage.onTick(this.inventory, this);
+        if (server == null) {
             return;
         }
-
-        Item item = ResearchTarget.of(sample.getItem());
+        ItemStack goal = this.target.getStackInSlot(0);
+        CraftingRecipe recipe = goal.isEmpty() ? null : UURecipeIndex.recipeFor(server.getRecipeManager(), goal.getItem());
         ResearchKnowledge knowledge = ResearchKnowledge.get(server);
-        // Also covers a recipe learned by command while the sample was waiting
-        if (knowledge.isLearned(ForgeRegistries.ITEMS.getKey(item))
-                || (this.progress == 0 && !UURecipeIndex.hasUURecipe(server.getRecipeManager(), item))) {
-            this.ejectSample();
-            this.storage.onTick(this.inventory, this);
+        if (recipe == null || knowledge.isLearned(ForgeRegistries.ITEMS.getKey(goal.getItem()))) {
+            setNeededUU(0);
+            setProcessedUU(0);
+            idle(true);
             return;
         }
 
-        int needed = ResearchCost.totalEu(
-                UURecipeIndex.milliUUCost(item, UUResearchConfig.DEFAULT_COST_UU.get()), UUResearchConfig.EU_PER_UU.get());
-        if (this.maxProgress != needed) {
-            this.maxProgress = needed;
+        Item item = goal.getItem();
+        int milliUU = UURecipeIndex.milliUUCost(item, UUResearchConfig.DEFAULT_COST_UU.get());
+        ItemStack result = recipe.getResultItem().copy();
+        int need = ResearchCost.uuPerCraft(milliUU, result.getCount());
+        setNeededUU(need);
+        int perUnit = ResearchCost.euPerUnit(ResearchCost.totalEu(milliUU, UUResearchConfig.EU_PER_UU.get()), need);
+        if (this.maxProgress != perUnit) {
+            this.maxProgress = perUnit;
             this.updateGuiField("maxProgress");
+        }
+        // Already enough (e.g. the config lowered the cost): only waits for room in the output
+        if (this.processedUU >= need) {
+            if (fitsOutput(result)) {
+                complete(server, knowledge, item, result);
+            }
+            idle(false);
+            return;
+        }
+        ItemStack input = this.inventory.get(SLOT_INPUT);
+        boolean lastUnit = this.processedUU + 1 >= need;
+        if (!input.is(IC2Items.UUMATTER) || lastUnit && !fitsOutput(result)) {
+            idle(false);
+            return;
         }
 
         if (this.hasEnergy(this.energyConsume)) {
             this.setActive(true);
             this.useEnergy(this.energyConsume);
-            this.setProgress(this.progress + this.energyConsume);
+            this.setProgress(this.progress + this.defaultEnergyConsume * this.progressPerTick);
             if (this.progress >= this.maxProgress) {
-                this.complete(server, knowledge, item);
+                // The unit leaves the input only once processed, so an interrupted one can still be taken back
+                input.shrink(1);
+                this.setProgress(0);
+                setProcessedUU(this.processedUU + 1);
+                this.setChanged();
+                if (this.processedUU >= need) {
+                    complete(server, knowledge, item, result);
+                }
             }
         } else {
             this.setActive(false);
-            this.setProgress(Math.max(0, this.progress - 1));
         }
         this.storage.onTick(this.inventory, this);
     }
 
-    private void complete(MinecraftServer server, ResearchKnowledge knowledge, Item item) {
+    public boolean isTargetValid(ItemStack stack) {
+        if (stack.isEmpty() || this.level == null || !UURecipeIndex.hasUURecipe(this.level.getRecipeManager(), stack.getItem())) {
+            return false;
+        }
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        return this.level.isClientSide
+                ? !ClientKnowledge.isLearned(id)
+                : !ResearchKnowledge.get(this.level.getServer()).isLearned(id);
+    }
+
+    private void complete(MinecraftServer server, ResearchKnowledge knowledge, Item item, ItemStack result) {
+        setProcessedUU(0);
+        ItemStack output = this.inventory.get(SLOT_OUTPUT);
+        if (output.isEmpty()) {
+            this.inventory.set(SLOT_OUTPUT, result);
+        } else {
+            output.grow(result.getCount());
+        }
+        this.setProgress(0);
         knowledge.learn(ForgeRegistries.ITEMS.getKey(item));
         server.getPlayerList().broadcastSystemMessage(
                 Component.translatable("message.uuresearch.learned", item.getDescription()), false);
         this.level.playSound(null, this.worldPosition, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 1.0F, 1.0F);
-        this.ejectSample();
-    }
-
-    private void ejectSample() {
-        this.inventory.set(SLOT_OUTPUT, this.inventory.get(SLOT_INPUT));
-        this.inventory.set(SLOT_INPUT, ItemStack.EMPTY);
-        this.setProgress(0);
         this.storage.onRecipeFinished(this.inventory, this);
         this.notifyListeners();
+        this.setChanged();
     }
 
-    private void setProgress(int value) {
+    private boolean fitsOutput(ItemStack result) {
+        ItemStack output = this.inventory.get(SLOT_OUTPUT);
+        return output.isEmpty()
+                || ItemStack.isSameItemSameTags(output, result) && output.getCount() + result.getCount() <= output.getMaxStackSize();
+    }
+
+    private void idle(boolean resetProgress) {
+        this.setActive(false);
+        if (resetProgress) {
+            this.setProgress(0);
+        }
+        this.storage.onTick(this.inventory, this);
+    }
+
+    private void setNeededUU(int value) {
+        if (this.neededUU != value) {
+            this.neededUU = value;
+            this.updateGuiField("neededUU");
+        }
+    }
+
+    private void setProcessedUU(int value) {
+        if (this.processedUU != value) {
+            this.processedUU = value;
+            this.updateGuiField("processedUU");
+        }
+    }
+
+    private void setProgress(float value) {
         if (this.progress != value) {
             this.progress = value;
             this.updateGuiField("progress");
         }
-    }
-
-    private boolean isResearchable(Item item) {
-        if (this.level == null) {
-            return false;
-        }
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey(item);
-        boolean learned = this.level.isClientSide
-                ? ClientKnowledge.isLearned(id)
-                : ResearchKnowledge.get(this.level.getServer()).isLearned(id);
-        return !learned && UURecipeIndex.hasUURecipe(this.level.getRecipeManager(), item);
     }
 }

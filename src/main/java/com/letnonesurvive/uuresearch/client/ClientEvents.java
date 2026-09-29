@@ -4,7 +4,6 @@ import com.letnonesurvive.uuresearch.UUResearch;
 import com.letnonesurvive.uuresearch.UUResearchConfig;
 import com.letnonesurvive.uuresearch.machine.ResearchStationBlockEntity;
 import com.letnonesurvive.uuresearch.research.ResearchCost;
-import com.letnonesurvive.uuresearch.research.ResearchTarget;
 import com.letnonesurvive.uuresearch.research.UURecipeIndex;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -56,7 +55,7 @@ public final class ClientEvents {
         if (player == null) {
             return;
         }
-        Item target = ResearchTarget.of(event.getItemStack().getItem());
+        Item target = event.getItemStack().getItem();
         if (!UURecipeIndex.hasUURecipe(player.level.getRecipeManager(), target)) {
             return;
         }
