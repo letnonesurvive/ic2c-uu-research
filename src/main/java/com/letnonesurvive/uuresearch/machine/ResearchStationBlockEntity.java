@@ -7,10 +7,14 @@ import com.letnonesurvive.uuresearch.research.ResearchKnowledge;
 import com.letnonesurvive.uuresearch.research.UURecipeIndex;
 import ic2.api.items.IUpgradeItem.UpgradeType;
 import ic2.api.network.buffer.NetworkInfo;
+import ic2.api.tiles.readers.IProgressMachine;
 import ic2.api.util.DirectionList;
 import ic2.core.IC2;
 import ic2.core.audio.AudioManager.SoundType;
 import ic2.core.block.base.features.ITickListener;
+import ic2.core.block.base.misc.comparator.ComparatorNames;
+import ic2.core.block.base.misc.comparator.types.base.FlagComparator;
+import ic2.core.block.base.misc.comparator.types.base.ProgressComparator;
 import ic2.core.block.base.tiles.impls.machine.single.BaseMachineTileEntity;
 import ic2.core.inventory.base.IHasInventory;
 import ic2.core.inventory.base.ITileGui;
@@ -106,6 +110,19 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
         super(pos, state, 3, 4, ENERGY_PER_TICK, 1000, 10_000, 128);
         this.setFuelSlot(SLOT_BATTERY);
         this.addGuiFields("progress", "maxProgress", "neededUU", "processedUU");
+        // Like IC2's machines, but the progress signal follows the whole research rather than the current UU unit
+        this.addComparator(new ProgressComparator("progress", ComparatorNames.PROGRESS, new IProgressMachine() {
+            @Override
+            public float getProgress() {
+                return processedUU;
+            }
+
+            @Override
+            public float getMaxProgress() {
+                return neededUU;
+            }
+        }));
+        this.addComparator(FlagComparator.createTile("active", ComparatorNames.ACTIVE, this));
     }
 
     public SimpleInventory getTarget() {
@@ -199,6 +216,8 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
         if (server == null) {
             return;
         }
+        // Reflects the previous tick's state, which is enough for a comparator
+        this.handleComparators();
         ItemStack goal = this.target.getStackInSlot(0);
         CraftingRecipe recipe = goal.isEmpty() ? null : UURecipeIndex.recipeFor(server.getRecipeManager(), goal.getItem());
         ResearchKnowledge knowledge = ResearchKnowledge.get(server);
