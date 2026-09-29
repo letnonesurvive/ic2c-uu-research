@@ -8,6 +8,8 @@ import com.letnonesurvive.uuresearch.research.UURecipeIndex;
 import ic2.api.items.IUpgradeItem.UpgradeType;
 import ic2.api.network.buffer.NetworkInfo;
 import ic2.api.util.DirectionList;
+import ic2.core.IC2;
+import ic2.core.audio.AudioManager.SoundType;
 import ic2.core.block.base.features.ITickListener;
 import ic2.core.block.base.tiles.impls.machine.single.BaseMachineTileEntity;
 import ic2.core.inventory.base.IHasInventory;
@@ -53,7 +55,11 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
 
     public static final EnumSet<UpgradeType> UPGRADES = EnumSet.of(
             UpgradeType.RECIPE_MOD, UpgradeType.TRANSPORT_MOD, UpgradeType.CUSTOM_MOD, UpgradeType.MACHINE_MOD,
-            UpgradeType.PROCESSING_MOD);
+            UpgradeType.PROCESSING_MOD, UpgradeType.AUDIO_MOD);
+
+    // IC2's OD scanner beep, played once per interval while working: looped it beeps every 0.36 s
+    private static final ResourceLocation WORKING_SOUND = new ResourceLocation("ic2", "sounds/tools/scanner.ogg");
+    private static final int SOUND_INTERVAL = 36;
 
     public static final int ENERGY_PER_TICK = 32;
 
@@ -70,6 +76,8 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
     public int neededUU = 0;
     @NetworkInfo
     public int processedUU = 0;
+
+    private int soundTicks = 0;
 
     // Kept apart from the main inventory, like IC2's filter tubes: never dropped and invisible to automation,
     // otherwise the ghost would turn into a real item
@@ -228,6 +236,7 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
 
         if (this.hasEnergy(this.energyConsume)) {
             this.setActive(true);
+            playWorkingSound();
             this.useEnergy(this.energyConsume);
             this.setProgress(this.progress + this.defaultEnergyConsume * this.progressPerTick);
             if (this.progress >= this.maxProgress) {
@@ -292,6 +301,13 @@ public class ResearchStationBlockEntity extends BaseMachineTileEntity implements
         if (this.neededUU != value) {
             this.neededUU = value;
             this.updateGuiField("neededUU");
+        }
+    }
+
+    private void playWorkingSound() {
+        if (this.soundTicks-- <= 0) {
+            this.soundTicks = SOUND_INTERVAL - 1;
+            IC2.AUDIO.playSound(this, WORKING_SOUND, SoundType.STATIC, this.soundLevel, 1.0F);
         }
     }
 
