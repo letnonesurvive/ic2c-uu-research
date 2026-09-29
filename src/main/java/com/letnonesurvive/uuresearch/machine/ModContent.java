@@ -29,7 +29,7 @@ public final class ModContent {
         event.register(ForgeRegistries.Keys.BLOCKS, helper -> {
             RESEARCH_STATION_TYPE = new IC2TileType<>(ResearchStationBlockEntity::new);
             RESEARCH_STATION = new BaseMachineBlock(RESEARCH_STATION_ID.toString(), IBlockDropProvider.SELF_OR_ADV_MACHINE,
-                    ITextureProvider.toggleIC2("machine/lv/crop_analyzer"), RESEARCH_STATION_TYPE);
+                    ITextureProvider.toggle(UUResearch.MOD_ID, "machine/research_station"), RESEARCH_STATION_TYPE);
             helper.register(RESEARCH_STATION_ID, RESEARCH_STATION);
         });
         event.register(ForgeRegistries.Keys.ITEMS,
