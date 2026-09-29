@@ -41,11 +41,9 @@ the machine is broken, just like in the Rare Earth Extractor.
 
 ## Recipe
 
-| | | |
-|---|---|---|
-| Book | OD Scanner | Book |
-| Advanced Circuit | Advanced Machine Casing | Advanced Circuit |
-| Advanced Alloy | UU-Matter | Advanced Alloy |
+<img src="docs/images/recipe.png" width="380" alt="UU Research Station crafting recipe">
+
+2x Book, OD Scanner, 2x Advanced Alloy, 2x Advanced Circuit, UU-Matter
 
 ## Configuration
 
