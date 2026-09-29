@@ -5,6 +5,8 @@ import ic2.core.block.base.IC2TileType;
 import ic2.core.block.base.drops.IBlockDropProvider;
 import ic2.core.block.machines.BaseMachineBlock;
 import ic2.core.platform.rendering.features.ITextureProvider;
+import ic2.core.utils.helpers.Formatters;
+import ic2.core.utils.tooltips.helper.ITooltipProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -30,6 +32,11 @@ public final class ModContent {
             RESEARCH_STATION_TYPE = new IC2TileType<>(ResearchStationBlockEntity::new);
             RESEARCH_STATION = new BaseMachineBlock(RESEARCH_STATION_ID.toString(), IBlockDropProvider.SELF_OR_ADV_MACHINE,
                     ITextureProvider.toggle(UUResearch.MOD_ID, "machine/research_station"), RESEARCH_STATION_TYPE);
+            // Same item tooltip lines as IC2's MV machines: max input and consumption. Built by hand because
+            // ITooltipProvider.consumption is overloaded with a carbonconfig type missing from the compile classpath
+            RESEARCH_STATION.addTooltip(ITooltipProvider.MV_MACHINE)
+                    .addTooltip(ITooltipProvider.euReaderTooltip("tooltip.item.ic2.eu_reader.consumption",
+                            Formatters.EU_READER_FORMAT.format(ResearchStationBlockEntity.ENERGY_PER_TICK)));
             helper.register(RESEARCH_STATION_ID, RESEARCH_STATION);
         });
         event.register(ForgeRegistries.Keys.ITEMS,

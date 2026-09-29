@@ -1,11 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["AUA", "CMC", "ACA"],
+  "pattern": ["BSB", "AMA", "PUP"],
   "key": {
+    "B": { "item": "minecraft:book" },
+    "S": { "item": "ic2:od_scanner" },
     "A": { "item": "ic2:advanced_circuit" },
-    "U": { "item": "ic2:uumatter" },
-    "C": { "item": "ic2:circuit" },
-    "M": { "item": "ic2:advanced_machine_block" }
+    "M": { "item": "ic2:advanced_machine_block" },
+    "P": { "item": "ic2:plate_advanced_alloy" },
+    "U": { "item": "ic2:uumatter" }
   },
   "result": { "item": "uuresearch:research_station" }
 }
