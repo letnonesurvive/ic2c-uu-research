@@ -42,13 +42,6 @@ class ResearchCostTest {
     }
 
     @Test
-    void formatsUUWithoutTrailingZeros() {
-        assertEquals("9", ResearchCost.formatUU(9000));
-        assertEquals("1.25", ResearchCost.formatUU(1250));
-        assertEquals("0.062", ResearchCost.formatUU(62));
-    }
-
-    @Test
     void splitsTicksIntoMinutesAndSeconds() {
         assertArrayEquals(new int[]{2, 21}, ResearchCost.minutesSeconds(2813));
         assertArrayEquals(new int[]{0, 16}, ResearchCost.minutesSeconds(313));

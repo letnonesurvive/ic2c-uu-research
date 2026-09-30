@@ -20,6 +20,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
@@ -62,15 +63,18 @@ public final class ClientEvents {
         if (ClientKnowledge.isLearned(ForgeRegistries.ITEMS.getKey(target))) {
             event.getToolTip().add(Component.translatable("tooltip.uuresearch.learned").withStyle(ChatFormatting.GREEN));
         } else if (Screen.hasShiftDown()) {
+            // Same numbers as the machine: UU for one craft of the recipe, processed unit by unit at the base rate
+            CraftingRecipe recipe = UURecipeIndex.recipeFor(player.level.getRecipeManager(), target);
             int milliUU = UURecipeIndex.milliUUCost(target, UUResearchConfig.DEFAULT_COST_UU.get());
-            int ticks = ResearchCost.ticks(ResearchCost.totalEu(milliUU, UUResearchConfig.EU_PER_UU.get()),
-                    ResearchStationBlockEntity.ENERGY_PER_TICK);
+            int need = ResearchCost.uuPerCraft(milliUU, recipe.getResultItem().getCount());
+            int perUnit = ResearchCost.euPerUnit(ResearchCost.totalEu(milliUU, UUResearchConfig.EU_PER_UU.get()), need);
+            int ticks = need * ResearchCost.ticks(perUnit, ResearchStationBlockEntity.ENERGY_PER_TICK);
             int[] time = ResearchCost.minutesSeconds(ticks);
             Component duration = time[0] > 0
                     ? Component.translatable("tooltip.uuresearch.time.minutes", time[0], time[1])
                     : Component.translatable("tooltip.uuresearch.time.seconds", time[1]);
             event.getToolTip().add(Component.translatable("tooltip.uuresearch.researchable",
-                    ResearchCost.formatUU(milliUU), duration).withStyle(ChatFormatting.YELLOW));
+                    need, duration).withStyle(ChatFormatting.YELLOW));
         }
     }
 
